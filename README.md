@@ -3,7 +3,7 @@ angular-collection
 
 Working on my first angular project I realized I wanted to be able to query collections of data and manipulate the models on the collection while keeping everything automatically in sync across views.
 
-Using the angular ui-router for state management means you can nest views trivially. So at the top level you have your `/things` view where you've loaded up things and saved them to `$scope.things`. Now you want to see a specific thing so you navigate to `/things/{id}`. What if you change something on that thing? Using plain ol' angular $resource, you'd have to have a callback that handles either pushing the changes to your collection (`$scope.things`) manually, or query the things again. This would mean more code and more http traffic.
+Using the angular ui-router for state management means you can nest views trivially. So at the top level you have your `/things` view where you've loaded up things and saved them to `$scope.things`. Now you want to see a specific thing so you navigate to `/things/{id}`. What if you change something on that thing? Using plain ol' angular $resource, you'd have to have a callback that handles either pushing the changes to your collection manually, or query the things again. This would mean more code and more http traffic.
 
 angular-collection behaves more like Backbone collections where you can query, add, remove, and manipulate models and the collection keeps track of all that.
 
@@ -24,6 +24,14 @@ angular.module('someModule', ['ngCollection'])
   <li ng-repeat="thing in scope.things.models">{{ thing.id }}</li>
 </ul>
 ```
+
+### API
+
+* `collection.query()` - Requests collection data
+* `collection.get({id})` - Returns model from collection with supplied id
+* `collection.add({model})` - Adds model to collection but does not save it
+* `collection.save({model})` - Creates a new or updates existing model. Dispatches `POST` or `PUT`
+* `collection.remove({model} or {id})` - Deletes model from collection and dispatches `DEL`
 
 ### TODO
 
