@@ -1,6 +1,12 @@
 (function(angular, _){
 'use strict';
 
+// Create local references to array methods we'll want to use later.
+var array = [];
+var push = array.push;
+var slice = array.slice;
+var splice = array.splice;
+
 angular.module('ngCollection', ['ngResource'])
   .factory('$collection', ['$resource', '$q', function($resource, $q){
     // Collection constructor
@@ -159,6 +165,19 @@ angular.module('ngCollection', ['ngResource'])
 
       return this;
     };
+
+    // Stolen straight from Backbone
+    // NOTE - The current included methods have been selected arbitrarily based on
+    // what I've actually used in my application
+    var methods = ['forEach', 'each', 'map', 'find', 'pluck'];
+
+    _.each(methods, function(method) {
+      Collection.prototype[method] = function() {
+        var args = slice.call(arguments);
+        args.unshift(this.models);
+        return _[method].apply(_, args);
+      };
+    });
 
     // Return the constructor
     return function(url, defaultParams){
