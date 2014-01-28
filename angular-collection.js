@@ -173,8 +173,11 @@ angular.module('ngCollection', ['ngResource'])
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
+        // Slice returns arguments as an array
         var args = slice.call(arguments);
+        // Unshift adds the models as the first value in args
         args.unshift(this.models);
+        // Return the _ method with appropriate context and arguments
         return _[method].apply(_, args);
       };
     });
