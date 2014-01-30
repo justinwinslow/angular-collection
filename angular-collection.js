@@ -32,10 +32,6 @@ angular.module('ngCollection', ['ngResource'])
       this.$resolved = true;
       this.$promise = null;
 
-      var updateLength = function(){
-        this.length = this.models.length;
-      };
-
       // Expose method for querying collection of models
       this.query = function(params){
         params = params || {};
@@ -61,7 +57,7 @@ angular.module('ngCollection', ['ngResource'])
             }
           });
 
-          updateLength.apply(that);
+          that.length = that.models.length;
 
           that.$resolved = true;
         });
@@ -117,7 +113,7 @@ angular.module('ngCollection', ['ngResource'])
         // Push model to collection
         this.models.push(model);
 
-        updateLength.apply(that);
+        this.length++;
 
         // Resolve the defer immediately since the push isn't async
         defer.resolve(model);
@@ -142,7 +138,7 @@ angular.module('ngCollection', ['ngResource'])
             // Add model to collection
             that.models.push(model);
 
-            updateLength.apply(that);
+            this.length++;
           });
         }
 
@@ -175,7 +171,7 @@ angular.module('ngCollection', ['ngResource'])
         // Remove model from collection
         _.remove(this.models, model);
 
-        updateLength.apply(that);
+        this.length--;
 
         return remove;
       };
