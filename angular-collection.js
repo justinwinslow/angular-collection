@@ -25,9 +25,16 @@ angular.module('ngCollection', ['ngResource'])
       // Store models for manipulation and display
       this.models = [];
 
+      // Store length so we can look it up faster/more easily
+      this.length = 0;
+
       // Expose resource promise and resolved
       this.$resolved = true;
       this.$promise = null;
+
+      var updateLength = function(){
+        this.length = this.models.length;
+      };
 
       // Expose method for querying collection of models
       this.query = function(params){
@@ -53,6 +60,8 @@ angular.module('ngCollection', ['ngResource'])
               that.models.push(model);
             }
           });
+
+          updateLength();
 
           that.$resolved = true;
         });
@@ -107,6 +116,8 @@ angular.module('ngCollection', ['ngResource'])
         // Push model to collection
         this.models.push(model);
 
+        updateLength();
+
         // Resolve the defer immediately since the push isn't async
         defer.resolve(model);
         add.$resolved = true;
@@ -129,6 +140,8 @@ angular.module('ngCollection', ['ngResource'])
           save.$promise.then(function(model){
             // Add model to collection
             that.models.push(model);
+
+            updateLength();
           });
         }
 
@@ -159,6 +172,8 @@ angular.module('ngCollection', ['ngResource'])
 
         // Remove model from collection
         _.remove(this.models, model);
+
+        updateLength();
 
         return remove;
       };
