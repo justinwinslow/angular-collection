@@ -138,7 +138,7 @@ angular.module('ngCollection', ['ngResource'])
             // Add model to collection
             that.models.push(model);
 
-            this.length++;
+            that.length++;
           });
         }
 
