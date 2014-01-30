@@ -61,7 +61,7 @@ angular.module('ngCollection', ['ngResource'])
             }
           });
 
-          updateLength();
+          updateLength.apply(that);
 
           that.$resolved = true;
         });
@@ -104,6 +104,7 @@ angular.module('ngCollection', ['ngResource'])
 
       // Add model to collection without saving it
       this.add = this.push = function(model){
+        var that = this;
         var defer = $q.defer();
         var add = {
           $promise: defer.promise,
@@ -116,7 +117,7 @@ angular.module('ngCollection', ['ngResource'])
         // Push model to collection
         this.models.push(model);
 
-        updateLength();
+        updateLength.apply(that);
 
         // Resolve the defer immediately since the push isn't async
         defer.resolve(model);
@@ -141,7 +142,7 @@ angular.module('ngCollection', ['ngResource'])
             // Add model to collection
             that.models.push(model);
 
-            updateLength();
+            updateLength.apply(that);
           });
         }
 
@@ -150,6 +151,7 @@ angular.module('ngCollection', ['ngResource'])
 
       // Delete existing model
       this.remove = this.del = function(model){
+        var that = this;
         var remove;
 
         // If the model has an id we need to del it from the database
@@ -173,7 +175,7 @@ angular.module('ngCollection', ['ngResource'])
         // Remove model from collection
         _.remove(this.models, model);
 
-        updateLength();
+        updateLength.apply(that);
 
         return remove;
       };
@@ -184,7 +186,7 @@ angular.module('ngCollection', ['ngResource'])
     // Stolen straight from Backbone
     // NOTE - The current included methods have been selected arbitrarily based on
     // what I've actually used in my application
-    var methods = ['forEach', 'each', 'map', 'find', 'pluck'];
+    var methods = ['forEach', 'each', 'map', 'find', 'pluck', 'last'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
