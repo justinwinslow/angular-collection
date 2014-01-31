@@ -129,16 +129,11 @@ angular.module('ngCollection', ['ngResource'])
 
         if (model.id) {
           save = resource.update({id: model.id}, model);
-
-          _.extend(_.find(this.models, {id: model.id}), model);
         } else {
           save = resource.save(model);
 
-          save.$promise.then(function(model){
-            // Add model to collection
-            that.models.push(model);
-
-            that.length++;
+          save.$promise.then(function(response){
+            _.extend(model, response);
           });
         }
 
