@@ -59,6 +59,7 @@ angular.module('ngCollection', ['ngResource'])
         this.$promise = save.$promise;
 
         save.$promise.then(function(model){
+          _.extend(this.model, model);
           that.resolved = true;
         });
 
