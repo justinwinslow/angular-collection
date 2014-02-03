@@ -35,10 +35,13 @@ angular.module('someModule', ['ngCollection'])
 * `collection.save()` - Calls model.save() for each model in the collection
 
 #### Model
+
 * `model.get(id)` - Dispatches a `GET` to query single model with supplied id
 * `model.save()` - Creates new (`POST`) or updates existing (`PUT`) model
-* `model.remove({model} or {id})` - Deletes model from collection and dispatches `DEL`
+* `model.remove()` - Deletes model with `DEL`
 
 All methods return their model or collection context, mimicking what $resource returns which contains a promise (`collection.$promise`), a resolution inidicator (`collection.$resolved`), and automatically unwrapped data. so you can do `ng-repeat="model in collection.models"` and have directives work as you would expect.
 
 ### TODO
+
+* Better collection state persistence when creating/deleting models
