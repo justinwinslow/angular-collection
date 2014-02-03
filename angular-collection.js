@@ -153,7 +153,12 @@ angular.module('ngCollection', ['ngResource'])
 
       this.push = this.add = function(model){
         if (model && model.model) {
-          this.models.push(model);
+          var existingModel = _.find(this.models, {id: model.model.id});
+
+          // Add the model if it doesn't exist
+          if (!existingModel) {
+            this.models.push(model);
+          }
         } else if (model) {
           this.models.push($model(model));
         }
