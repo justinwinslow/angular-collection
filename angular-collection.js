@@ -8,7 +8,85 @@ var slice = array.slice;
 var splice = array.splice;
 
 angular.module('ngCollection', ['ngResource'])
-  .factory('$collection', ['$resource', '$q', function($resource, $q){
+  .factory('$model', ['$resource', '$q', function($resource, $q){
+    var Model = function(url, model){
+      // Remove leading slash if provided
+      url = (url[0] == '/') ? url.slice(1) : url;
+
+      // Instantiate resource
+      var defaultParams = (model && model.id) ? {id: model.id} : {};
+
+      var resource = $resource('/' + url + '/:id', defaultParams, {
+        // Add PUT method since it's not available by default
+        update: {
+          method: 'PUT'
+        }
+      });
+
+      // Store the model
+      this.model = model || {};
+
+      // Expose resource promise and resolved
+      this.$resolved = true;
+      this.$promise = null;
+
+      this.get = function(id){
+        id = id || this.model.id;
+        var get = resource.get({id: id});
+        var that = this;
+
+        // Update exposed promise and resolution indication
+        this.$resolved = false;
+        this.$promise = get.$promise;
+
+        get.$promise.then(function(model){
+          // Update model data
+          _.extend(that.model, model);
+
+          // Update resolution indicator
+          that.$resolved = true;
+        });
+
+        return this;
+      };
+
+      this.save = function(){
+        var save = (this.model.id) ? resource.update(this.model) : resource.save(this.model);
+        var that = this;
+
+        // Update exposed promise and resolution indication
+        this.$resolved = false;
+        this.$promise = save.$promise;
+
+        save.$promise.then(function(model){
+          that.resolved = true;
+        });
+
+        return this;
+      };
+
+      this.remove = this.del = function(){
+        var remove = resource.remove(this.model);
+        var that = this;
+
+        // Update exposed promise and resolution indication
+        this.$resolved = false;
+        this.$promise = save.$promise;
+
+        remove.$promise.then(function(model){
+          that.resolved = true;
+        });
+
+        return this;
+      };
+    };
+
+    // Return the constructor
+    return function(url, model){
+      return new Model(url, model);
+    };
+  }])
+  .factory('$collection', ['$resource', '$q', '$model', function($resource, $q, $model){
     // Collection constructor
     var Collection = function(url, defaultParams){
       // Remove leading slash if provided
@@ -43,9 +121,9 @@ angular.module('ngCollection', ['ngResource'])
         this.$promise = query.$promise;
 
         // Update models
-        this.$promise.then(function(response){
+        this.$promise.then(function(models){
           // Loop through models
-          _.each(response, function(model){
+          _.each(models, function(model){
             var existingModel = _.find(that.models, {id: model.id});
 
             if (existingModel) {
@@ -53,7 +131,7 @@ angular.module('ngCollection', ['ngResource'])
               _.extend(existingModel, model);
             } else {
               // or push new model
-              that.models.push(model);
+              that.models.push($model('url', model));
             }
           });
 
@@ -62,113 +140,51 @@ angular.module('ngCollection', ['ngResource'])
           that.$resolved = true;
         });
 
-        return query;
+        return this;
       };
 
-      // Get an individual model
-      // NOTE - When I first started building this I made the get method actually fetch a
-      // resource instead of behaving like the Backbone collection get. I've since updated
-      // it to try to find the model in the models array and request the resource if that
-      // fails. Not sure if that is useful or smart at this point.
-      this.get = function(params){
-        // If a string is passed, assume it's an id
-        params = (typeof params == 'string') ? {id: params} : params;
+      // Get an individual model by id
+      this.get = function(id){
+        var model = _.find(this.models, {id: id});
 
-        var model = _.find(this.models, params);
-        var get;
+        return model;
+      };
 
-        if (model) {
-          var defer = $q.defer();
-
-          get = {
-            $promise: defer.promise,
-            $resolved: false
-          };
-
-          // Add model to get
-          _.extend(get, model);
-
-          // Resolve the defer immediately since the push isn't async
-          defer.resolve(model);
-          get.$resolved = true;
-        } else {
-          get = resource.get(params);
+      this.push = this.add = function(model){
+        if (model && model.model) {
+          this.models.push(model);
+        } else if (model) {
+          this.models.push($model(model));
         }
 
-        return get;
+        return this;
       };
 
-      // Add model to collection without saving it
-      this.add = this.push = function(model){
+      // Save all models
+      this.save = function(){
         var that = this;
         var defer = $q.defer();
-        var add = {
-          $promise: defer.promise,
-          $resolved: false
-        };
+        var counter = 0;
 
-        // Add the model to the returned object
-        _.extend(add, model);
+        // Update promise and resolved indicator
+        this.$resolved = false;
+        this.$promise = defer.promise;
 
-        // Push model to collection
-        this.models.push(model);
+        // Save each model individually
+        _.each(this.models, function(model){
+          model.save().$promise.then(function(){
+            // Increment counter
+            counter++;
 
-        this.length++;
-
-        // Resolve the defer immediately since the push isn't async
-        defer.resolve(model);
-        add.$resolved = true;
-
-        return add;
-      };
-
-      // Save a new model
-      this.save = function(model){
-        var that = this;
-        var save;
-
-        if (model.id) {
-          save = resource.update({id: model.id}, model);
-        } else {
-          save = resource.save(model);
-
-          save.$promise.then(function(response){
-            _.extend(model, response);
+            // If all saves have finished, resolve the promise
+            if (counter === that.length) {
+              that.$resolved = true;
+              defer.resolve(that.models);
+            }
           });
-        }
+        });
 
-        return save;
-      };
-
-      // Delete existing model
-      this.remove = this.del = function(model){
-        var that = this;
-        var remove;
-
-        // If the model has an id we need to del it from the database
-        if (model.id) {
-          remove = resource.remove({id: model.id});
-        } else {
-          var defer = $q.defer();
-          remove = {
-            $promise: defer.promise,
-            $resolved: false
-          };
-
-          // Add the model to the returned object
-          _.extend(remove, model);
-
-          // Resolve defer immediately since we don't have to hit the database
-          defer.resolve(model);
-          remove.resolved = true;
-        }
-
-        // Remove model from collection
-        _.remove(this.models, model);
-
-        this.length--;
-
-        return remove;
+        return this;
       };
 
       return this;

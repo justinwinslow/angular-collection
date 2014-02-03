@@ -12,8 +12,8 @@ angular-collection is an abstraction for $resource that behaves more like Backbo
 ``` javascript
 angular.module('someModule', ['ngCollection'])
   .controller('someController', ['$collection', function($collection){
-    $scope.things = $collection('things');
-    $scope.things.query().then(function(things){
+    $scope.things = $collection('things').query();
+    $scope.things.$promise.then(function(things){
       console.log(things, $scope.things);
     });
   }]);
@@ -21,30 +21,24 @@ angular.module('someModule', ['ngCollection'])
 
 ``` html
 <ul>
-  <li ng-repeat="thing in things.models">{{ thing.id }}</li>
+  <li ng-repeat="thing in things.models">{{ thing.model.id }}</li>
 </ul>
 ```
 
 ### API
 
+#### Collection
+
 * `collection.query()` - Requests collection data
-* `collection.get({id})` - Returns model from collection with supplied id
+* `collection.get(id)` - Returns model from collection with supplied id
 * `collection.add({model})` - Adds model to collection but does not save it
-* `collection.save({model})` - Creates a new or updates existing model. Dispatches `POST` or `PUT`
-* `collection.remove({model} or {id})` - Deletes model from collection and dispatches `DEL`
+* `collection.save()` - Calls model.save() for each model in the collection
 
-All methods return an object that mimics what $resource returns which contains a promise (`collection.query().$promise`), a resolution inidicator (`collection.query().$resolved`), and automatically unwrapped data so you can do `$scope.thing = collection.get({id})` and have directives work as you would expect. The one caveat being, the collection models can be accessed at `$scope.collection.models` so you can do `ng-repeat` as shown in the example above.
+#### Model
+* `model.get(id)` - Dispatches a `GET` to query single model with supplied id
+* `model.save()` - Creates new (`POST`) or updates existing (`PUT`) model
+* `model.remove({model} or {id})` - Deletes model from collection and dispatches `DEL`
 
-### What Isn't Quite Right?
-
-Well, it seems a little weird to have promises on operations that aren't async but I thought it made sense to have all methods return the same thing.
-
-I think Restangular handles nested resources in a slick way where this just doesn't handle them at all. Not sure if there is merit in exploring adding that in some way.
-
-It would be cool to really get Backboney and have model wrappers, or at the very least be able to do `model.save()` and have it all still work but there's no real separation or correlation between models and the collection at the moment.
-
-I'm sure there is other janky or broken stuff but I'm actively developing a commercial application using this and only responding to places where something is broken or doesn't work the way I want to.
+All methods return their model or collection context, mimicking what $resource returns which contains a promise (`collection.$promise`), a resolution inidicator (`collection.$resolved`), and automatically unwrapped data. so you can do `ng-repeat="model in collection.models"` and have directives work as you would expect.
 
 ### TODO
-
-* Extend Collection with underscore methods
