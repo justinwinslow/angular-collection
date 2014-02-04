@@ -31,7 +31,7 @@ angular.module('ngCollection', ['ngResource'])
       this.$promise = null;
 
       this.get = function(id){
-        id = id || this.model.id;
+        id = id || this.id;
         var get = resource.get({id: id});
         var that = this;
 
@@ -60,6 +60,7 @@ angular.module('ngCollection', ['ngResource'])
 
         save.$promise.then(function(model){
           _.extend(this.model, model);
+
           that.resolved = true;
         });
 
@@ -117,6 +118,8 @@ angular.module('ngCollection', ['ngResource'])
         var that = this;
         var query = resource.query(params);
 
+        this.models = [];
+
         // Update exposed promise and resolution indication
         this.$resolved = false;
         this.$promise = query.$promise;
@@ -125,15 +128,8 @@ angular.module('ngCollection', ['ngResource'])
         this.$promise.then(function(models){
           // Loop through models
           _.each(models, function(model){
-            var existingModel = _.find(that.models, {id: model.id});
-
-            if (existingModel) {
-              // Update existing model
-              _.extend(existingModel, model);
-            } else {
-              // or push new model
-              that.models.push($model('url', model));
-            }
+            // Push new model
+            that.models.push($model('url', model));
           });
 
           that.length = that.models.length;
