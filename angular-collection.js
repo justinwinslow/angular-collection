@@ -50,8 +50,8 @@ angular.module('ngCollection', ['ngResource'])
         return this;
       };
 
-      this.save = function(){
-        var save = (this.model.id) ? resource.update(this.model) : resource.save(this.model);
+      this.save = function(model){
+        var save = (this.model.id) ? resource.update(this.model) : resource.save(model);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -59,7 +59,7 @@ angular.module('ngCollection', ['ngResource'])
         this.$promise = save.$promise;
 
         save.$promise.then(function(model){
-          _.extend(this.model, model);
+          _.extend(that.model, model);
 
           that.resolved = true;
         });
