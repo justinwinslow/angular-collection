@@ -241,12 +241,7 @@ angular.module('ngCollection', ['ngResource'])
     };
 
     // Stolen straight from Backbone
-    var methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl',
-    'inject', 'reduceRight', 'foldr', 'find', 'detect', 'filter', 'select',
-    'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke',
-    'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest',
-    'tail', 'drop', 'last', 'without', 'difference', 'indexOf', 'shuffle',
-    'lastIndexOf', 'isEmpty', 'chain', 'sample'];
+    var methods = ['forEach', 'each', 'first', 'last', 'indexOf'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
