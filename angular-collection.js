@@ -216,13 +216,37 @@ angular.module('ngCollection', ['ngResource'])
         return this;
       };
 
+      this.find = this.findWhere = function(attrs) {
+        return _.find(this.models, function(model){
+          for (var key in attrs) {
+            if (attrs[key] !== model.model[key]) return false;
+          }
+          return true;
+        });
+      };
+
+      this.pluck = function(property){
+        var values = [];
+
+        this.each(function(model){
+          if (model.model[property]){
+            values.push(model.model[property]);
+          }
+        });
+
+        return values;
+      };
+
       return this;
     };
 
     // Stolen straight from Backbone
-    // NOTE - The current included methods have been selected arbitrarily based on
-    // what I've actually used in my application
-    var methods = ['forEach', 'each', 'map', 'find', 'pluck', 'last', 'indexOf'];
+    var methods = ['forEach', 'each', 'map', 'collect', 'reduce', 'foldl',
+    'inject', 'reduceRight', 'foldr', 'find', 'detect', 'filter', 'select',
+    'reject', 'every', 'all', 'some', 'any', 'include', 'contains', 'invoke',
+    'max', 'min', 'toArray', 'size', 'first', 'head', 'take', 'initial', 'rest',
+    'tail', 'drop', 'last', 'without', 'difference', 'indexOf', 'shuffle',
+    'lastIndexOf', 'isEmpty', 'chain', 'sample'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
