@@ -10,6 +10,7 @@ var splice = array.splice;
 angular.module('ngCollection', ['ngResource'])
   .factory('$model', ['$resource', '$q', function($resource, $q){
     var Model = function(url, model){
+      console.log('init model', url, model);
       // Remove leading slash if provided
       url = (url[0] == '/') ? url.slice(1) : url;
 
@@ -68,12 +69,13 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.remove = this.del = function(){
+        console.log(url);
         var remove = resource.remove(this.model);
         var that = this;
 
         // Update exposed promise and resolution indication
         this.$resolved = false;
-        this.$promise = save.$promise;
+        this.$promise = remove.$promise;
 
         remove.$promise.then(function(model){
           that.resolved = true;
@@ -129,7 +131,7 @@ angular.module('ngCollection', ['ngResource'])
           // Loop through models
           _.each(models, function(model){
             // Push new model
-            that.models.push($model('url', model));
+            that.models.push($model(url, model));
           });
 
           that.length = that.models.length;
