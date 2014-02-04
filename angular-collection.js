@@ -180,7 +180,7 @@ angular.module('ngCollection', ['ngResource'])
         // Update length property
         updateLength.apply(this);
 
-        return this;
+        return model;
       };
 
       // Save all models
