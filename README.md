@@ -29,16 +29,16 @@ angular.module('someModule', ['ngCollection'])
 
 #### Collection
 
-* `collection.query()` - Requests collection data
-* `collection.get(id)` - Returns model from collection with supplied id
-* `collection.add({model})` - Adds model to collection but does not save it
-* `collection.save()` - Calls model.save() for each model in the collection
+* `collection.query()` - Requests collection data (`GET`).
+* `collection.get(id)` - Returns model from collection with supplied id.
+* `collection.add({model})` - Adds model to collection but does not save it.
+* `collection.save()` - Calls model.save() for each model in the collection.
 
 #### Model
 
-* `model.get(id)` - Dispatches a `GET` to query single model with supplied id
-* `model.save()` - Creates new (`POST`) or updates existing (`PUT`) model
-* `model.remove()` - Deletes model with `DEL`
+* `model.get(id)` - Dispatches a `GET` to query single model with supplied id.
+* `model.save()` - Creates new (`POST`) or updates existing (`PUT`) model.
+* `model.remove()` - Deletes model with `DEL`. If model was part of collection, this will also remove it from the collection.
 
 All methods return their model or collection context, mimicking what $resource returns which contains a promise (`collection.$promise`), a resolution inidicator (`collection.$resolved`), and automatically unwrapped data. so you can do `ng-repeat="model in collection.models"` and have directives work as you would expect.
 
