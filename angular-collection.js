@@ -50,8 +50,8 @@ angular.module('ngCollection', ['ngResource'])
         return this;
       };
 
-      this.save = function(model){
-        var save = (this.model.id) ? resource.update(this.model) : resource.save(model);
+      this.save = function(){
+        var save = (this.model.id) ? resource.update(this.model) : resource.save(this.model);
         var that = this;
 
         // Update exposed promise and resolution indication
