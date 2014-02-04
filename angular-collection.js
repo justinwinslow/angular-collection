@@ -10,7 +10,6 @@ var splice = array.splice;
 angular.module('ngCollection', ['ngResource'])
   .factory('$model', ['$resource', '$q', function($resource, $q){
     var Model = function(url, model){
-      console.log('init model', url, model);
       // Remove leading slash if provided
       url = (url[0] == '/') ? url.slice(1) : url;
 
@@ -69,7 +68,6 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.remove = this.del = function(){
-        console.log(url);
         var remove = resource.remove(this.model);
         var that = this;
 
