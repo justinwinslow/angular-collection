@@ -71,6 +71,11 @@ angular.module('ngCollection', ['ngResource'])
         var remove = resource.remove(this.model);
         var that = this;
 
+        // Remove model from collection if it's in one
+        if (this.collection) {
+          this.collection.models.splice(this.collection.indexOf(this), 1);
+        }
+
         // Update exposed promise and resolution indication
         this.$resolved = false;
         this.$promise = remove.$promise;
@@ -209,7 +214,7 @@ angular.module('ngCollection', ['ngResource'])
     // Stolen straight from Backbone
     // NOTE - The current included methods have been selected arbitrarily based on
     // what I've actually used in my application
-    var methods = ['forEach', 'each', 'map', 'find', 'pluck', 'last'];
+    var methods = ['forEach', 'each', 'map', 'find', 'pluck', 'last', 'indexOf'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
