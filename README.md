@@ -45,3 +45,4 @@ All methods return their model or collection context, mimicking what $resource r
 ### TODO
 
 * Better collection state persistence when creating/deleting models
+* Consider collection directives like `ng-collection-repeat` to make views cleaner
