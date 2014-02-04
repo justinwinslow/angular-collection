@@ -51,7 +51,7 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.save = function(){
-        var save = (this.model.id) ? resource.update(this.model) : resource.save(this.model);
+        var save = (this.model.id) ? resource.update({id: this.model.id}, this.model) : resource.save(this.model);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -193,19 +193,25 @@ angular.module('ngCollection', ['ngResource'])
         this.$resolved = false;
         this.$promise = defer.promise;
 
-        // Save each model individually
-        _.each(this.models, function(model){
-          model.save().$promise.then(function(){
-            // Increment counter
-            counter++;
+        if (this.length) {
+          // Save each model individually
+          this.each(function(model){
+            model.save().$promise.then(function(){
+              // Increment counter
+              counter++;
 
-            // If all saves have finished, resolve the promise
-            if (counter === that.length) {
-              that.$resolved = true;
-              defer.resolve(that.models);
-            }
+              // If all saves have finished, resolve the promise
+              if (counter === that.length) {
+                defer.resolve(that.models);
+                that.$resolved = true;
+              }
+            });
           });
-        });
+        } else {
+          // Resolve immediately if there are no models
+          defer.resolve();
+          this.$resolved = true;
+        }
 
         return this;
       };
