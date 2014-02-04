@@ -31,7 +31,7 @@ angular.module('ngCollection', ['ngResource'])
       this.$promise = null;
 
       this.get = function(id){
-        id = id || this.id;
+        id = id || this.model.id;
         var get = resource.get({id: id});
         var that = this;
 
