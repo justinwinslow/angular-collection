@@ -112,6 +112,10 @@ angular.module('ngCollection', ['ngResource'])
       this.$resolved = true;
       this.$promise = null;
 
+      var updateLength = function(){
+        this.length = this.models.length;
+      };
+
       // Expose method for querying collection of models
       this.query = function(params){
         params = params || {};
@@ -129,10 +133,11 @@ angular.module('ngCollection', ['ngResource'])
           // Loop through models
           _.each(models, function(model){
             // Push new model
-            that.models.push($model(url, model));
+            that.push(model);
           });
 
-          that.length = that.models.length;
+          // Update length property
+          updateLength.apply(that);
 
           that.$resolved = true;
         });
@@ -156,8 +161,17 @@ angular.module('ngCollection', ['ngResource'])
             this.models.push(model);
           }
         } else if (model) {
-          this.models.push($model(model));
+          // Instantiate new model
+          var newModel = $model(url, model);
+
+          // Add this collection reference to it
+          newModel.collection = this;
+
+          this.models.push(newModel);
         }
+
+        // Update length property
+        updateLength.apply(this);
 
         return this;
       };
