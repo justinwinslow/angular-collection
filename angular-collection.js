@@ -72,8 +72,8 @@ angular.module('ngCollection', ['ngResource'])
         var that = this;
 
         // Remove model from collection if it's in one
-        if (this.collection) {
-          this.collection.models.splice(this.collection.indexOf(this), 1);
+        if (this.$collection) {
+          this.$collection.models.splice(this.$collection.indexOf(this), 1);
         }
 
         // Update exposed promise and resolution indication
@@ -164,7 +164,7 @@ angular.module('ngCollection', ['ngResource'])
           // Add the model if it doesn't exist
           if (this.indexOf(model) < 0) {
             // Add collection reference
-            model.collection = this;
+            model.$collection = this;
             // Push it to the models
             this.models.push(model);
           }
@@ -172,7 +172,7 @@ angular.module('ngCollection', ['ngResource'])
           // Instantiate new model
           model = $model(url, model);
           // Add this collection reference to it
-          model.collection = this;
+          model.$collection = this;
           // Push it to the models
           this.models.push(model);
         }
