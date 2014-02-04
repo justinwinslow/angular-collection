@@ -11,11 +11,24 @@ angular-collection is an abstraction for $resource that behaves more like Backbo
 
 ``` javascript
 angular.module('someModule', ['ngCollection'])
-  .controller('someController', ['$collection', function($collection){
+  .controller('someController', ['$collection', '$model', function($collection, $model){
+    // Create a collection of things
     $scope.things = $collection('things').query();
     $scope.things.$promise.then(function(things){
       console.log(things, $scope.things);
     });
+
+    // Create a new thing
+    var anotherThing = $model('things', {property, 'value'});
+
+    // Push it to the collection
+    $scope.things.push(anotherThing);
+
+    // Save the model
+    anotherThing.save();
+
+    // You could also save the whole collection
+    $scope.things.save();
   }]);
 ```
 
@@ -44,5 +57,4 @@ All methods return their model or collection context, mimicking what $resource r
 
 ### TODO
 
-* Better collection state persistence when creating/deleting models
 * Consider collection directives like `ng-collection-repeat` to make views cleaner
