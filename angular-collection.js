@@ -162,17 +162,19 @@ angular.module('ngCollection', ['ngResource'])
           var existingModel = _.find(this.models, {id: model.model.id});
 
           // Add the model if it doesn't exist
-          if (!existingModel) {
+          if (this.indexOf(model) < 0) {
+            // Add collection reference
+            model.collection = this;
+            // Push it to the models
             this.models.push(model);
           }
         } else if (model) {
           // Instantiate new model
-          var newModel = $model(url, model);
-
+          model = $model(url, model);
           // Add this collection reference to it
-          newModel.collection = this;
-
-          this.models.push(newModel);
+          model.collection = this;
+          // Push it to the models
+          this.models.push(model);
         }
 
         // Update length property
