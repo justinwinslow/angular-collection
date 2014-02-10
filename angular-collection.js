@@ -8,6 +8,58 @@ var slice = array.slice;
 var splice = array.splice;
 
 angular.module('ngCollection', ['ngResource'])
+  .directive('ngCollectionRepeat', ['$parse', '$animate', function($parse, $animate) {
+    return {
+      transclude: 'element',
+      priority: 1000,
+      terminal: true,
+      $$tlb: true,
+      link: function($scope, $element, $attr, ctrl, $transclude){
+        var expression = $attr.ngCollectionRepeat;
+        var match = expression.match(/^\s*([\s\S]+?)\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?\s*$/);
+        var modelAlias, collectionName;
+        //var trackByExp, trackByExpGetter, trackByIdExpFn, trackByIdArrayFn, trackByIdObjFn;
+
+        modelAlias = match[1]; // Expose model in child scope as this
+        collectionName = match[2]; // Name of the collection in the scope
+
+        // Store a list of elements from previous run. This is a hash where key is the item from the
+        // iterator, and the value is objects with following properties.
+        //   - scope: bound scope
+        //   - element: previous element.
+        //   - index: position
+        var lastBlockMap = [];
+
+        $scope.$watchCollection(collectionName, function ngRepeatAction(collection){
+          var previousNode = $element[0];
+
+          for (var index = 0, length = collection.length; index < length; index++) {
+            var model = collection.models[index];
+            var childScope = $scope.$new();
+
+            // Add model to the scope
+            childScope[modelAlias] = model.model;
+
+            // Add logic helpers to scope
+            childScope.$index = index;
+            childScope.$first = (index === 0);
+            childScope.$last = (index === (collection.length - 1));
+            childScope.$middle = !(childScope.$first || childScope.$last);
+            // jshint bitwise: false
+            childScope.$odd = !(childScope.$even = (index&1) === 0);
+            // jshint bitwise: true
+
+            // Build the DOM element
+            $transclude(childScope, function(clone) {
+              clone[clone.length++] = document.createComment(' end ngRepeat: ' + expression + ' ');
+              $animate.enter(clone, null, angular.element(previousNode));
+              previousNode = clone;
+            });
+          }
+        });
+      }
+    };
+  }])
   .factory('$model', ['$resource', '$q', function($resource, $q){
     var Model = function(url, model){
       // Remove leading slash if provided
@@ -95,7 +147,7 @@ angular.module('ngCollection', ['ngResource'])
   }])
   .factory('$collection', ['$resource', '$q', '$model', function($resource, $q, $model){
     // Collection constructor
-    var Collection = function(url, defaultParams){
+    var Collection = function(url, defaultParams, collection){
       // Remove leading slash if provided
       url = (url[0] == '/') ? url.slice(1) : url;
 
@@ -152,7 +204,9 @@ angular.module('ngCollection', ['ngResource'])
 
       // Get an individual model by id
       this.get = function(id){
-        var model = _.find(this.models, {id: id});
+        var model = _.find(this.models, function(model){
+          return model.model.id == id;
+        });
 
         return model;
       };
@@ -237,6 +291,15 @@ angular.module('ngCollection', ['ngResource'])
         return values;
       };
 
+      // If a collection has been supplied, let's use that
+      if (collection && collection.length) {
+        // Loop through models
+        _.each(collection, function(model){
+          // Push new model
+          this.push(model);
+        }, this);
+      }
+
       return this;
     };
 
@@ -255,8 +318,8 @@ angular.module('ngCollection', ['ngResource'])
     });
 
     // Return the constructor
-    return function(url, defaultParams){
-      return new Collection(url, defaultParams);
+    return function(url, defaultParams, collection){
+      return new Collection(url, defaultParams, collection);
     };
   }]);
 })(window.angular, window._);
