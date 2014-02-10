@@ -3,8 +3,8 @@
   "description": "Backbone-like collections for Angular",
   "version": "0.1.0",
   "dependencies": {
-    "lodash": "latest",
-    "angular": "latest",
-    "angular-resource": "latest"
+    "lodash": "~2.4.x",
+    "angular": "~1.2.x",
+    "angular-resource": "~1.2.x"
   }
 }
