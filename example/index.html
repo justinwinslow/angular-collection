@@ -11,20 +11,31 @@ myApp.controller('MyCtrl', ['$scope', '$collection', '$model',
 function($scope, $collection, $model) {
   var data = [
     {
-      id: 1,
+      id: 0,
       name: 'Number One'
     },
     {
-      id: 2,
+      id: 1,
       name: 'Number Two'
     },
     {
-      id: 3,
+      id: 2,
       name: 'Number Three'
     }
   ];
 
+  // Instantiate collection
   $scope.collection = $collection('/', {}, data);
+
+  // Add a new model
+  $scope.collection.push({
+    id: 3,
+    name: 'Number Four'
+  });
+
+  // Change a property
+  var model = $scope.collection.get(0);
+  model.model.name = 'Poopy Head';
 }]);
 </script>
 

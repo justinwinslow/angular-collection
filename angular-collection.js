@@ -34,13 +34,14 @@ angular.module('ngCollection', ['ngResource'])
           console.log('collection', collection);
           var previousNode = $element[0];
 
-          // we are not using forEach for perf reasons (trying to avoid #call)
           for (var index = 0, length = collection.length; index < length; index++) {
             var model = collection.models[index];
             var childScope = $scope.$new();
 
+            // Add model to the scope
             childScope[modelAlias] = model.model;
 
+            // Add logic helpers to scope
             childScope.$index = index;
             childScope.$first = (index === 0);
             childScope.$last = (index === (collection.length - 1));
@@ -49,6 +50,7 @@ angular.module('ngCollection', ['ngResource'])
             childScope.$odd = !(childScope.$even = (index&1) === 0);
             // jshint bitwise: true
 
+            // Build the DOM element
             $transclude(childScope, function(clone) {
               clone[clone.length++] = document.createComment(' end ngRepeat: ' + expression + ' ');
               $animate.enter(clone, null, angular.element(previousNode));
@@ -204,7 +206,9 @@ angular.module('ngCollection', ['ngResource'])
 
       // Get an individual model by id
       this.get = function(id){
-        var model = _.find(this.models, {id: id});
+        var model = _.find(this.models, function(model){
+          return model.model.id == id;
+        });
 
         return model;
       };
