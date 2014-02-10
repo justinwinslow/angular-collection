@@ -58,3 +58,4 @@ All methods return their model or collection context, mimicking what $resource r
 ### TODO
 
 * Perf test `ng-collection-repeat`
+* Error handling
