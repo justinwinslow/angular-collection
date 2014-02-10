@@ -1,0 +1,43 @@
+
+<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular.js"></script>
+<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+<script type="text/javascript" src="../angular-collection.js"></script>
+
+<script type="text/javascript">
+var myApp = angular.module('myApp', ['ngCollection']);
+
+myApp.controller('MyCtrl', ['$scope', '$collection', '$model',
+function($scope, $collection, $model) {
+  var data = [
+    {
+      id: 1,
+      name: 'Number One'
+    },
+    {
+      id: 2,
+      name: 'Number Two'
+    },
+    {
+      id: 3,
+      name: 'Number Three'
+    }
+  ];
+
+  $scope.collection = $collection('/', {}, data);
+}]);
+</script>
+
+<div ng-app="myApp">
+  <div ng-controller="MyCtrl">
+    {{ collection }} <br><br>
+    ngRepeat <br>
+    <ul>
+      <li ng-repeat="model in collection.models">{{ model.model.name }}</li>
+    </ul>
+    ngCollectionRepeat <br>
+    <ul>
+      <li ng-collection-repeat="model in collection">{{ model.name }}</li>
+    </ul>
+  </div>
+</div>
