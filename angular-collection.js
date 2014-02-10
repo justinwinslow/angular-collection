@@ -23,38 +23,45 @@ angular.module('ngCollection', ['ngResource'])
         modelAlias = match[1]; // Expose model in child scope as this
         collectionName = match[2]; // Name of the collection in the scope
 
-        // Store a list of elements from previous run. This is a hash where key is the item from the
-        // iterator, and the value is objects with following properties.
-        //   - scope: bound scope
-        //   - element: previous element.
-        //   - index: position
-        var lastBlockMap = [];
+        // Store elements from previous run so we can destroy them
+        var previousElements = [];
 
-        $scope.$watchCollection(collectionName, function ngRepeatAction(collection){
+        $scope.$watchCollection(collectionName + '.models', function ngRepeatAction(collection){
           var previousNode = $element[0];
 
-          for (var index = 0, length = collection.length; index < length; index++) {
-            var model = collection.models[index];
-            var childScope = $scope.$new();
-
-            // Add model to the scope
-            childScope[modelAlias] = model.model;
-
-            // Add logic helpers to scope
-            childScope.$index = index;
-            childScope.$first = (index === 0);
-            childScope.$last = (index === (collection.length - 1));
-            childScope.$middle = !(childScope.$first || childScope.$last);
-            // jshint bitwise: false
-            childScope.$odd = !(childScope.$even = (index&1) === 0);
-            // jshint bitwise: true
-
-            // Build the DOM element
-            $transclude(childScope, function(clone) {
-              clone[clone.length++] = document.createComment(' end ngRepeat: ' + expression + ' ');
-              $animate.enter(clone, null, angular.element(previousNode));
-              previousNode = clone;
+          // Dump existing DOM nodes
+          if (previousElements.length) {
+            _.each(previousElements, function(element){
+              $animate.leave(element);
             });
+            // Clear array
+            previousElements = [];
+          }
+
+          if (collection) {
+            for (var index = 0, length = collection.length; index < length; index++) {
+              var model = collection[index];
+              var childScope = $scope.$new();
+
+              // Add model to the scope
+              childScope[modelAlias] = model.model;
+
+              // Add logic helpers to scope
+              childScope.$index = index;
+              childScope.$first = (index === 0);
+              childScope.$last = (index === (collection.length - 1));
+              childScope.$middle = !(childScope.$first || childScope.$last);
+              // jshint bitwise: false
+              childScope.$odd = !(childScope.$even = (index&1) === 0);
+              // jshint bitwise: true
+
+              // Build the DOM element
+              $transclude(childScope, function(clone) {
+                $animate.enter(clone, null, angular.element(previousNode));
+                previousNode = clone;
+                previousElements.push(clone);
+              });
+            }
           }
         });
       }
@@ -213,8 +220,6 @@ angular.module('ngCollection', ['ngResource'])
 
       this.push = this.add = function(model){
         if (model && model.model) {
-          var existingModel = _.find(this.models, {id: model.model.id});
-
           // Add the model if it doesn't exist
           if (this.indexOf(model) < 0) {
             // Add collection reference
