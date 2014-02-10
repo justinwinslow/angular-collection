@@ -179,9 +179,12 @@ angular.module('ngCollection', ['ngResource'])
         this.length = this.models.length;
       };
 
+      // Remove a specific model from the collection
       this.remove = function(model){
         this.models.splice(this.models.indexOf(model), 1);
         updateLength.apply(this);
+
+        return this;
       };
 
       // Expose method for querying collection of models
@@ -190,7 +193,9 @@ angular.module('ngCollection', ['ngResource'])
         var that = this;
         var query = resource.query(params);
 
+        // Clear out models
         this.models = [];
+        this.length = 0;
 
         // Update exposed promise and resolution indication
         this.$resolved = false;
@@ -203,9 +208,6 @@ angular.module('ngCollection', ['ngResource'])
             // Push new model
             that.push(model);
           });
-
-          // Update length property
-          updateLength.apply(that);
 
           that.$resolved = true;
         });
