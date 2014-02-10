@@ -16,9 +16,8 @@ angular.module('ngCollection', ['ngResource'])
       $$tlb: true,
       link: function($scope, $element, $attr, ctrl, $transclude){
         var expression = $attr.ngCollectionRepeat;
-        var match = expression.match(/^\s*([\s\S]+?)\s+in\s+([\s\S]+?)(?:\s+track\s+by\s+([\s\S]+?))?\s*$/);
+        var match = expression.match(/^\s*([\s\S]+?)\s+in\s+([\s\S]+?)?\s*$/);
         var modelAlias, collectionName;
-        //var trackByExp, trackByExpGetter, trackByIdExpFn, trackByIdArrayFn, trackByIdObjFn;
 
         modelAlias = match[1]; // Expose model in child scope as this
         collectionName = match[2]; // Name of the collection in the scope
@@ -26,7 +25,7 @@ angular.module('ngCollection', ['ngResource'])
         // Store elements from previous run so we can destroy them
         var previousElements = [];
 
-        $scope.$watchCollection(collectionName + '.models', function ngRepeatAction(collection){
+        $scope.$watchCollection(collectionName, function ngRepeatAction(collection){
           var previousNode = $element[0];
 
           // Dump existing DOM nodes
@@ -40,7 +39,7 @@ angular.module('ngCollection', ['ngResource'])
 
           if (collection) {
             for (var index = 0, length = collection.length; index < length; index++) {
-              var model = collection[index];
+              var model = collection.models[index];
               var childScope = $scope.$new();
 
               // Add model to the scope
@@ -132,7 +131,7 @@ angular.module('ngCollection', ['ngResource'])
 
         // Remove model from collection if it's in one
         if (this.$collection) {
-          this.$collection.models.splice(this.$collection.indexOf(this), 1);
+          this.$collection.remove(this);
         }
 
         // Update exposed promise and resolution indication
@@ -178,6 +177,11 @@ angular.module('ngCollection', ['ngResource'])
 
       var updateLength = function(){
         this.length = this.models.length;
+      };
+
+      this.remove = function(model){
+        this.models.splice(this.models.indexOf(model), 1);
+        updateLength.apply(this);
       };
 
       // Expose method for querying collection of models

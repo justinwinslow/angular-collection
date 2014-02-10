@@ -57,4 +57,4 @@ All methods return their model or collection context, mimicking what $resource r
 
 ### TODO
 
-* Consider collection directives like `ng-collection-repeat` to make views cleaner
+* Perf test `ng-collection-repeat`
