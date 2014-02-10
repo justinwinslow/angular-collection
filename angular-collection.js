@@ -43,7 +43,7 @@ angular.module('ngCollection', ['ngResource'])
               var childScope = $scope.$new();
 
               // Add model to the scope
-              childScope[modelAlias] = model.model;
+              childScope[modelAlias] = model.attributes;
 
               // Add logic helpers to scope
               childScope.$index = index;
@@ -82,14 +82,14 @@ angular.module('ngCollection', ['ngResource'])
       });
 
       // Store the model
-      this.model = model || {};
+      this.attributes = model || {};
 
       // Expose resource promise and resolved
       this.$resolved = true;
       this.$promise = null;
 
       this.get = function(id){
-        id = id || this.model.id;
+        id = id || this.attributes.id;
         var get = resource.get({id: id});
         var that = this;
 
@@ -99,7 +99,7 @@ angular.module('ngCollection', ['ngResource'])
 
         get.$promise.then(function(model){
           // Update model data
-          _.extend(that.model, model);
+          _.extend(that.attributes, model);
 
           // Update resolution indicator
           that.$resolved = true;
@@ -109,7 +109,7 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.save = function(){
-        var save = (this.model.id) ? resource.update({id: this.model.id}, this.model) : resource.save(this.model);
+        var save = (this.attributes.id) ? resource.update({id: this.attributes.id}, this.attributes) : resource.save(this.attributes);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -117,7 +117,7 @@ angular.module('ngCollection', ['ngResource'])
         this.$promise = save.$promise;
 
         save.$promise.then(function(model){
-          _.extend(that.model, model);
+          _.extend(that.attributes, model);
 
           that.resolved = true;
         });
@@ -126,7 +126,7 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.remove = this.del = function(){
-        var remove = resource.remove(this.model);
+        var remove = resource.remove(this.attributes);
         var that = this;
 
         // Remove model from collection if it's in one
@@ -179,14 +179,6 @@ angular.module('ngCollection', ['ngResource'])
         this.length = this.models.length;
       };
 
-      // Remove a specific model from the collection
-      this.remove = function(model){
-        this.models.splice(this.models.indexOf(model), 1);
-        updateLength.apply(this);
-
-        return this;
-      };
-
       // Expose method for querying collection of models
       this.query = function(params){
         params = params || {};
@@ -218,7 +210,7 @@ angular.module('ngCollection', ['ngResource'])
       // Get an individual model by id
       this.get = function(id){
         var model = _.find(this.models, function(model){
-          return model.model.id == id;
+          return model.attributes.id == id;
         });
 
         return model;
@@ -246,6 +238,14 @@ angular.module('ngCollection', ['ngResource'])
         updateLength.apply(this);
 
         return model;
+      };
+
+      // Remove a specific model from the collection
+      this.remove = function(model){
+        this.models.splice(this.models.indexOf(model), 1);
+        updateLength.apply(this);
+
+        return this;
       };
 
       // Save all models
@@ -284,7 +284,7 @@ angular.module('ngCollection', ['ngResource'])
       this.find = this.findWhere = function(attrs) {
         return _.find(this.models, function(model){
           for (var key in attrs) {
-            if (attrs[key] !== model.model[key]) return false;
+            if (attrs[key] !== model.attributes[key]) return false;
           }
           return true;
         });
@@ -294,8 +294,8 @@ angular.module('ngCollection', ['ngResource'])
         var values = [];
 
         this.each(function(model){
-          if (model.model[property]){
-            values.push(model.model[property]);
+          if (model.attributes[property]){
+            values.push(model.attributes[property]);
           }
         });
 

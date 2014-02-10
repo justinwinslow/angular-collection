@@ -35,7 +35,7 @@ angular.module('someModule', ['ngCollection'])
 ``` html
 <!-- Normal ngRepeat way -->
 <ul>
-  <li ng-repeat="thing in things.models">{{ thing.model.id }}</li>
+  <li ng-repeat="thing in things.models">{{ thing.attributes.id }}</li>
 </ul>
 
 <!-- ngCollectionRepeat way -->
