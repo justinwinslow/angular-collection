@@ -65,3 +65,4 @@ All methods return their model or collection context, mimicking what $resource r
 
 * Perf test `ng-collection-repeat`
 * Error handling
+* ngIf directive doesn't work - cloned elements don't get removed
