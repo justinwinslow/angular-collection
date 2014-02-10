@@ -31,7 +31,6 @@ angular.module('ngCollection', ['ngResource'])
         var lastBlockMap = [];
 
         $scope.$watchCollection(collectionName, function ngRepeatAction(collection){
-          console.log('collection', collection);
           var previousNode = $element[0];
 
           for (var index = 0, length = collection.length; index < length; index++) {
@@ -149,7 +148,6 @@ angular.module('ngCollection', ['ngResource'])
   .factory('$collection', ['$resource', '$q', '$model', function($resource, $q, $model){
     // Collection constructor
     var Collection = function(url, defaultParams, collection){
-      console.log(arguments);
       // Remove leading slash if provided
       url = (url[0] == '/') ? url.slice(1) : url;
 
@@ -295,7 +293,6 @@ angular.module('ngCollection', ['ngResource'])
 
       // If a collection has been supplied, let's use that
       if (collection && collection.length) {
-        console.log('Has collection');
         // Loop through models
         _.each(collection, function(model){
           // Push new model
