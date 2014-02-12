@@ -217,7 +217,7 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.push = this.add = function(model){
-        if (model && model.model) {
+        if (model && model.attributes) {
           // Add the model if it doesn't exist
           if (this.indexOf(model) < 0) {
             // Add collection reference
