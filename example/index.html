@@ -36,6 +36,10 @@ function($scope, $collection, $model) {
   // Change a property
   var model = $scope.collection.get(0);
   model.attributes.name = 'Some Other Name';
+
+  $scope.log = function(model){
+    console.log(model);
+  };
 }]);
 </script>
 
@@ -48,7 +52,7 @@ function($scope, $collection, $model) {
     </ul>
     ngCollectionRepeat <br>
     <ul>
-      <li ng-collection-repeat="model in collection">{{ model.name }}</li>
+      <li ng-collection-repeat="model in collection" ng-click="log($this)">{{ model.name }}</li>
     </ul>
   </div>
 </div>

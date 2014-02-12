@@ -45,6 +45,9 @@ angular.module('ngCollection', ['ngResource'])
               // Add model to the scope
               childScope[modelAlias] = model.attributes;
 
+              // Add a reference to the model so you can use it in your controllers
+              childScope.$this = model;
+
               // Add logic helpers to scope
               childScope.$index = index;
               childScope.$first = (index === 0);
