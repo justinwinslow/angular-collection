@@ -50,7 +50,8 @@ angular.module('someModule', ['ngCollection'])
 
 * `collection.query()` - Requests collection data (`GET`).
 * `collection.get(id)` - Returns model from collection with supplied id.
-* `collection.add({model})` - Adds model to collection but does not save it.
+* `collection.add({model})` - Adds model to collection but does not save it (can be object or instantiated `$model`).
+* `collection.remove({model})` - Removes model from the collection but does not issue `DEL` (must be intantiated `$model`).
 * `collection.save()` - Calls model.save() for each model in the collection.
 
 #### Model
