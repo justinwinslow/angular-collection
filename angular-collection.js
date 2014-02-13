@@ -129,12 +129,19 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.remove = this.del = function(){
-        var remove = resource.remove(this.attributes);
+        var remove;
         var that = this;
 
         // Remove model from collection if it's in one
         if (this.$collection) {
           this.$collection.remove(this);
+        }
+
+        if (this.attributes.id) {
+          remove = resource.remove(this.attributes);
+        } else {
+          remove = $q.defer();
+          remove.resolve();
         }
 
         // Update exposed promise and resolution indication
