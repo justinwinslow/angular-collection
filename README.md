@@ -67,3 +67,4 @@ All methods return their model or collection context, mimicking what $resource r
 * Error handling
 * ngIf directive doesn't work - cloned elements don't get removed
 * `ng-collection-options` directive
+* Investigate getting rid of $resource and just using $http
