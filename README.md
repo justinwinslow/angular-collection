@@ -35,12 +35,12 @@ angular.module('someModule', ['ngCollection'])
 ``` html
 <!-- Normal ngRepeat way -->
 <ul>
-  <li ng-repeat="thing in things.models">{{ thing.attributes.id }}</li>
+  <li ng-repeat="thing in things.models" ng-click="doSomething(thing)">{{ thing.attributes.id }}</li>
 </ul>
 
 <!-- ngCollectionRepeat way -->
 <ul>
-  <li ng-repeat="thing in things">{{ thing.id }}</li>
+  <li ng-repeat="thing in things" ng-click="doSomething($this)">{{ thing.id }}</li>
 </ul>
 ```
 
