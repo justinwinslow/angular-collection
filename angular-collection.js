@@ -31,7 +31,9 @@ angular.module('ngCollection', ['ngResource'])
           // Dump existing DOM nodes
           if (previousElements.length) {
             _.each(previousElements, function(element){
-              $animate.leave(element);
+              $animate.leave(element, function(){
+                element = null;
+              });
             });
             // Clear array
             previousElements = [];
