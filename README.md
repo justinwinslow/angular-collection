@@ -40,7 +40,7 @@ angular.module('someModule', ['ngCollection'])
 
 <!-- ngCollectionRepeat way -->
 <ul>
-  <li ng-repeat="thing in things" ng-click="doSomething($this)">{{ thing.id }}</li>
+  <li ng-collection-repeat="thing in things" ng-click="doSomething($this)">{{ thing.id }}</li>
 </ul>
 ```
 
