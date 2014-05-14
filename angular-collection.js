@@ -105,8 +105,9 @@ angular.module('ngCollection', ['ngResource'])
         get.$promise.then(function(model){
           // Update model data
           _.extend(that.attributes, model);
+        });
 
-          // Update resolution indicator
+        save.$promise.finally(function(){
           that.$resolved = true;
         });
 
@@ -114,6 +115,7 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.save = function(){
+        console.log('Model Save');
         var save = (this.attributes.id) ? resource.update({id: this.attributes.id}, this.attributes) : resource.save(this.attributes);
         var that = this;
 
@@ -123,8 +125,10 @@ angular.module('ngCollection', ['ngResource'])
 
         save.$promise.then(function(model){
           _.extend(that.attributes, model);
+        });
 
-          that.resolved = true;
+        save.$promise.finally(function(){
+          that.$resolved = true;
         });
 
         return this;
@@ -150,7 +154,7 @@ angular.module('ngCollection', ['ngResource'])
         this.$resolved = false;
         this.$promise = remove.$promise;
 
-        remove.$promise.then(function(model){
+        remove.$promise.finally(function(){
           that.resolved = true;
         });
 
@@ -206,26 +210,19 @@ angular.module('ngCollection', ['ngResource'])
         this.$promise = query.$promise;
 
         // Update models
-        this.$promise.then(function(models){
+        query.$promise.then(function(models){
           // Loop through models
           _.each(models, function(model){
             // Push new model
             that.push(model);
           });
+        });
 
+        query.$promise.finally(function(){
           that.$resolved = true;
         });
 
         return this;
-      };
-
-      // Get an individual model by id
-      this.get = function(id){
-        var model = _.find(this.models, function(model){
-          return model.attributes.id == id;
-        });
-
-        return model;
       };
 
       this.push = this.add = function(model){
@@ -287,8 +284,11 @@ angular.module('ngCollection', ['ngResource'])
         } else {
           // Resolve immediately if there are no models
           defer.resolve();
-          this.$resolved = true;
         }
+
+        defer.promise.finally(function(){
+          that.$resolved = true;
+        });
 
         return this;
       };
