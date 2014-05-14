@@ -1,10 +1,10 @@
 {
   "name": "angular-collection",
   "description": "Backbone-like collections for Angular",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "dependencies": {
-    "lodash": "~2.4.X",
-    "angular": "~1.2.X",
-    "angular-resource": "~1.2.X"
+    "lodash": ">=2.4.0",
+    "angular": ">=1.2.0",
+    "angular-resource": ">=1.2.0"
   }
 }
