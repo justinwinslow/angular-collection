@@ -107,7 +107,7 @@ angular.module('ngCollection', ['ngResource'])
           _.extend(that.attributes, model);
         });
 
-        save.$promise.finally(function(){
+        get.$promise.finally(function(){
           that.$resolved = true;
         });
 
