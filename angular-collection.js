@@ -115,7 +115,6 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.save = function(){
-        console.log('Model Save');
         var save = (this.attributes.id) ? resource.update({id: this.attributes.id}, this.attributes) : resource.save(this.attributes);
         var that = this;
 
