@@ -74,7 +74,7 @@ angular.module('ngCollection', ['ngResource'])
   .factory('$model', ['$resource', '$q', function($resource, $q){
     var Model = function(url, model){
       // Remove leading slash if provided
-      url = (url[0] == '/') ? url.slice(1) : url;
+      url = (url && url[0] == '/') ? url.slice(1) : url;
 
       // Instantiate resource
       var defaultParams = (model && model.id) ? {id: model.id} : {};
@@ -170,7 +170,7 @@ angular.module('ngCollection', ['ngResource'])
     // Collection constructor
     var Collection = function(url, defaultParams, collection){
       // Remove leading slash if provided
-      url = (url[0] == '/') ? url.slice(1) : url;
+      url = (url && url[0] == '/') ? url.slice(1) : url;
 
       // Instantiate resource
       var resource = $resource('/' + url + '/:id', defaultParams, {
