@@ -93,24 +93,6 @@ angular.module('ngCollection', ['ngResource'])
       this.$resolved = true;
       this.$promise = null;
 
-      this.get = function(key){
-        return this.attributes[key];
-      };
-
-      this.set = function(key, value){
-        var properties = {};
-
-        if (_.isObject(key)) {
-          _.extend(properties, key);
-        } else {
-          properties[key] = value;
-        }
-
-        for (var k in properties) {
-          this.attributes[k] = properties[k];
-        }
-      };
-
       this.save = function(){
         var save = (this.attributes.id) ? resource.update({id: this.attributes.id}, this.attributes) : resource.save(this.attributes);
         var that = this;
