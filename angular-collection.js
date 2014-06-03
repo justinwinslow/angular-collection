@@ -93,25 +93,22 @@ angular.module('ngCollection', ['ngResource'])
       this.$resolved = true;
       this.$promise = null;
 
-      this.get = function(id){
-        id = id || this.attributes.id;
-        var get = resource.get({id: id});
-        var that = this;
+      this.get = function(key){
+        return this.attributes[key];
+      };
 
-        // Update exposed promise and resolution indication
-        this.$resolved = false;
-        this.$promise = get.$promise;
+      this.set = function(key, value){
+        var properties = {};
 
-        get.$promise.then(function(model){
-          // Update model data
-          _.extend(that.attributes, model);
-        });
+        if (_.isObject(key)) {
+          _.extend(properties, key);
+        } else {
+          properties[key] = value;
+        }
 
-        get.$promise.finally(function(){
-          that.$resolved = true;
-        });
-
-        return this;
+        for (var k in properties) {
+          this.attributes[k] = properties[k];
+        }
       };
 
       this.save = function(){
@@ -326,7 +323,7 @@ angular.module('ngCollection', ['ngResource'])
     };
 
     // Stolen straight from Backbone
-    var methods = ['forEach', 'each', 'first', 'last', 'indexOf'];
+    var methods = ['forEach', 'each', 'first', 'last', 'indexOf', 'sortBy'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {

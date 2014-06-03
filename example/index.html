@@ -34,8 +34,10 @@ function($scope, $collection, $model) {
   });
 
   // Change a property
-  var model = $scope.collection.get(0);
-  model.attributes.name = 'Some Other Name';
+  var model = $scope.collection.find({id: 0});
+  model.set({'name': 'Some Other Name'});
+
+  $scope.collection.sortBy('name');
 
   $scope.log = function(model){
     console.log(model);
