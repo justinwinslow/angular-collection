@@ -93,6 +93,27 @@ angular.module('ngCollection', ['ngResource'])
       this.$resolved = true;
       this.$promise = null;
 
+      this.get = function(id){
+        id = id || this.attributes.id;
+        var get = resource.get({id: id});
+        var that = this;
+
+        // Update exposed promise and resolution indication
+        this.$resolved = false;
+        this.$promise = get.$promise;
+
+        get.$promise.then(function(model){
+          // Update model data
+          _.extend(that.attributes, model);
+        });
+
+        get.$promise.finally(function(){
+          that.$resolved = true;
+        });
+
+        return this;
+      };
+
       this.save = function(){
         var save = (this.attributes.id) ? resource.update({id: this.attributes.id}, this.attributes) : resource.save(this.attributes);
         var that = this;
