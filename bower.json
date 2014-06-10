@@ -1,7 +1,7 @@
 {
   "name": "angular-collection",
   "description": "Backbone-like collections for Angular",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "dependencies": {
     "lodash": ">=2.4.0",
     "angular": ">=1.2.0",
