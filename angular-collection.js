@@ -91,7 +91,12 @@ angular.module('ngCollection', ['ngResource'])
 
       // Expose resource promise and resolved
       this.$resolved = true;
-      this.$promise = null;
+
+      // Immediately resolve a promise to use as this.$promise
+      var defer = $q.defer();
+      defer.resolve(this.attributes);
+
+      this.$promise = defer.promise;
 
       this.get = function(id){
         id = id || this.attributes.id;
@@ -188,7 +193,12 @@ angular.module('ngCollection', ['ngResource'])
 
       // Expose resource promise and resolved
       this.$resolved = true;
-      this.$promise = null;
+
+      // Immediately resolve a promise to use as this.$promise
+      var defer = $q.defer();
+      defer.resolve(this.models);
+
+      this.$promise = defer.promise;
 
       var updateLength = function(){
         this.length = this.models.length;
@@ -326,7 +336,7 @@ angular.module('ngCollection', ['ngResource'])
     };
 
     // Stolen straight from Backbone
-    var methods = ['forEach', 'each', 'first', 'last', 'indexOf', 'sortBy'];
+    var methods = ['forEach', 'each', 'first', 'last', 'indexOf'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
