@@ -98,9 +98,9 @@ angular.module('ngCollection', [])
         this.$resolved = false;
         this.$promise = get;
 
-        get.then(function(model){
+        get.then(function(response){
           // Update model data
-          _.extend(that.attributes, model);
+          _.extend(that.attributes, response.data);
         });
 
         get.finally(function(){
