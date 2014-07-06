@@ -91,7 +91,7 @@ angular.module('ngCollection', [])
       this.$promise = defer.promise;
 
       this.get = function(id){
-        var get = $http.get(this.url + '/' + this.attributes.id);
+        var get = $http.get(this.url + '/' + id);
         var that = this;
 
         // Update exposed promise and resolution indication

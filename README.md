@@ -13,13 +13,13 @@ angular-collection is an abstraction for $resource that behaves more like Backbo
 angular.module('someModule', ['ngCollection'])
   .controller('someController', ['$collection', '$model', function($collection, $model){
     // Create a collection of things
-    $scope.things = $collection('things').query();
+    $scope.things = $collection('/things').query();
     $scope.things.$promise.then(function(things){
       console.log(things, $scope.things);
     });
 
     // Create a new thing
-    var anotherThing = $model('things', {property, 'value'});
+    var anotherThing = $model('/things', {property, 'value'});
 
     // Push it to the collection
     $scope.things.push(anotherThing);
