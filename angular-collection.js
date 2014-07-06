@@ -7,7 +7,7 @@ var push = array.push;
 var slice = array.slice;
 var splice = array.splice;
 
-angular.module('ngCollection', ['ngResource'])
+angular.module('ngCollection', [])
   .directive('ngCollectionRepeat', ['$parse', '$animate', function($parse, $animate) {
     return {
       transclude: 'element',
@@ -71,20 +71,12 @@ angular.module('ngCollection', ['ngResource'])
       }
     };
   }])
-  .factory('$model', ['$resource', '$q', function($resource, $q){
+  .factory('$model', ['$http', '$q', function($http, $q){
     var Model = function(url, model){
-      // Remove leading slash if provided
-      url = (url && url[0] == '/') ? url.slice(1) : url;
+      this.url = url || '/';
 
       // Instantiate resource
       var defaultParams = (model && model.id) ? {id: model.id} : {};
-
-      var resource = $resource('/' + url + '/:id', defaultParams, {
-        // Add PUT method since it's not available by default
-        update: {
-          method: 'PUT'
-        }
-      });
 
       // Store the model
       this.attributes = model || {};
@@ -99,20 +91,19 @@ angular.module('ngCollection', ['ngResource'])
       this.$promise = defer.promise;
 
       this.get = function(id){
-        id = id || this.attributes.id;
-        var get = resource.get({id: id});
+        var get = $http.get(this.url + '/' + this.attributes.id);
         var that = this;
 
         // Update exposed promise and resolution indication
         this.$resolved = false;
-        this.$promise = get.$promise;
+        this.$promise = get;
 
-        get.$promise.then(function(model){
+        get.then(function(model){
           // Update model data
           _.extend(that.attributes, model);
         });
 
-        get.$promise.finally(function(){
+        get.finally(function(){
           that.$resolved = true;
         });
 
@@ -120,18 +111,19 @@ angular.module('ngCollection', ['ngResource'])
       };
 
       this.save = function(){
-        var save = (this.attributes.id) ? resource.update({id: this.attributes.id}, this.attributes) : resource.save(this.attributes);
+        var save = (this.attributes.id) ? $http.put(this.url + '/' + this.attributes.id, this.attributes) : $http.post(this.url, this.attributes);
         var that = this;
 
         // Update exposed promise and resolution indication
         this.$resolved = false;
-        this.$promise = save.$promise;
+        this.$promise = save;
 
-        save.$promise.then(function(model){
+        save.then(function(response){
+          var model = response.data;
           _.extend(that.attributes, model);
         });
 
-        save.$promise.finally(function(){
+        save.finally(function(){
           that.$resolved = true;
         });
 
@@ -148,17 +140,18 @@ angular.module('ngCollection', ['ngResource'])
         }
 
         if (this.attributes.id) {
-          remove = resource.remove(this.attributes);
+          remove = $http.delete(url + '/' + this.attributes.id);
         } else {
-          remove = $q.defer();
-          remove.resolve();
+          var defer = $q.defer();
+          remove = defer.promise;
+          defer.resolve();
         }
 
         // Update exposed promise and resolution indication
         this.$resolved = false;
-        this.$promise = remove.$promise;
+        this.$promise = remove;
 
-        remove.$promise.finally(function(){
+        remove.finally(function(){
           that.resolved = true;
         });
 
@@ -171,19 +164,10 @@ angular.module('ngCollection', ['ngResource'])
       return new Model(url, model);
     };
   }])
-  .factory('$collection', ['$resource', '$q', '$model', function($resource, $q, $model){
+  .factory('$collection', ['$http', '$q', '$model', function($http, $q, $model){
     // Collection constructor
     var Collection = function(url, defaultParams, collection){
-      // Remove leading slash if provided
-      url = (url && url[0] == '/') ? url.slice(1) : url;
-
-      // Instantiate resource
-      var resource = $resource('/' + url + '/:id', defaultParams, {
-        // Add PUT method since it's not available by default
-        update: {
-          method: 'PUT'
-        }
-      });
+      this.url = url || '/';
 
       // Store models for manipulation and display
       this.models = [];
@@ -208,7 +192,7 @@ angular.module('ngCollection', ['ngResource'])
       this.query = function(params){
         params = params || {};
         var that = this;
-        var query = resource.query(params);
+        var query = $http.get(this.url, params);
 
         // Clear out models
         this.models = [];
@@ -216,10 +200,11 @@ angular.module('ngCollection', ['ngResource'])
 
         // Update exposed promise and resolution indication
         this.$resolved = false;
-        this.$promise = query.$promise;
+        this.$promise = query;
 
         // Update models
-        query.$promise.then(function(models){
+        query.then(function(response){
+          var models = response.data;
           // Loop through models
           _.each(models, function(model){
             // Push new model
@@ -227,7 +212,7 @@ angular.module('ngCollection', ['ngResource'])
           });
         });
 
-        query.$promise.finally(function(){
+        query.finally(function(){
           that.$resolved = true;
         });
 
@@ -245,7 +230,7 @@ angular.module('ngCollection', ['ngResource'])
           }
         } else if (model) {
           // Instantiate new model
-          model = $model(url, model);
+          model = $model(this.url, model);
           // Add this collection reference to it
           model.$collection = this;
           // Push it to the models
@@ -279,7 +264,7 @@ angular.module('ngCollection', ['ngResource'])
         if (this.length) {
           // Save each model individually
           this.each(function(model){
-            model.save().$promise.then(function(){
+            model.save().then(function(){
               // Increment counter
               counter++;
 
