@@ -5,7 +5,7 @@ Working on my first angular project I realized I wanted to be able to query coll
 
 Using the angular ui-router for state management means you can nest views trivially. So at the top level you have your `/things` view where you've loaded up things and saved them to `$scope.things`. Now you want to see a specific thing so you navigate to `/things/{id}`. What if you change something on that thing? Using plain ol' angular $resource, you'd have to have a callback that handles either pushing the changes to your collection manually, or query the things again. This would mean more code and more http traffic.
 
-angular-collection is an abstraction for $resource that behaves more like Backbone collections where you can query, add, remove, and manipulate models and the collection keeps track of all that.
+angular-collection is similar to $resource but behaves more like Backbone collections where you can query, add, remove, and manipulate models and the collection keeps track of all that.
 
 ### Example
 
