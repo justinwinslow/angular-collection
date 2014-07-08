@@ -170,6 +170,8 @@ angular.module('ngCollection', [])
     var Collection = function(url, defaultParams, collection){
       this.url = url || '/';
 
+      defaultParams = defaultParams || {};
+
       // Store models for manipulation and display
       this.models = [];
 
@@ -191,9 +193,9 @@ angular.module('ngCollection', [])
 
       // Expose method for querying collection of models
       this.query = function(params){
-        params = params || {};
+        params = $.extend({}, defaultParams, params);
         var that = this;
-        var query = $http.get(this.url, params);
+        var query = $http.get(this.url, {params: params});
 
         // Clear out models
         this.models = [];
