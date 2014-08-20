@@ -28,7 +28,6 @@ angular.module('ngCollection', [])
         var previousElements = [];
 
         $scope.$watchCollection(collectionName, function ngRepeatAction(collection){
-          console.log('collection', collectionName, collection);
           var previousNode = $element[0];
 
           // Dump existing DOM nodes
