@@ -10,7 +10,9 @@ var splice = array.splice;
 angular.module('ngCollection', [])
   .directive('ngCollectionRepeat', ['$parse', '$animate', function($parse, $animate) {
     return {
+      restrict: 'A',
       transclude: 'element',
+      multiElement: true,
       priority: 1000,
       terminal: true,
       $$tlb: true,
@@ -26,6 +28,7 @@ angular.module('ngCollection', [])
         var previousElements = [];
 
         $scope.$watchCollection(collectionName, function ngRepeatAction(collection){
+          console.log('collection', collectionName, collection);
           var previousNode = $element[0];
 
           // Dump existing DOM nodes
@@ -197,16 +200,16 @@ angular.module('ngCollection', [])
         var that = this;
         var query = $http.get(this.url, {params: params});
 
-        // Clear out models
-        this.models = [];
-        this.length = 0;
-
         // Update exposed promise and resolution indication
         this.$resolved = false;
         this.$promise = query;
 
         // Update models
         query.then(function(response){
+          // Clear out models
+          that.models = [];
+          that.length = 0;
+
           var models = response.data;
           // Loop through models
           _.each(models, function(model){
