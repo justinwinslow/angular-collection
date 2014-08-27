@@ -2,6 +2,14 @@
   "name": "angular-collection",
   "description": "Backbone-like collections for Angular",
   "version": "0.2.3",
+  "main": "angular-collection.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:justinwinslow/angular-collection.git"
+  },
+  "authors": [
+    "Justin Winslow <justin@jwin.me> (http://jwin.me)"
+  ],
   "dependencies": {
     "lodash": ">=2.4.0",
     "angular": ">=1.2.0",
