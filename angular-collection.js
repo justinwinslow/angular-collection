@@ -313,6 +313,10 @@ angular.module('ngCollection', [])
         return values;
       };
 
+      this.at = function(index){
+        return this.models[index];
+      };
+
       // If a collection has been supplied, let's use that
       if (collection && collection.length) {
         // Loop through models
