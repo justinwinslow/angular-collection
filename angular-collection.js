@@ -227,7 +227,7 @@ angular.module('ngCollection', [])
       this.push = this.add = function(model){
         if (model && model.attributes) {
           // Add the model if it doesn't exist
-          if (this.indexOf(model) < 0) {
+          if (this.models.indexOf(model) < 0) {
             // Add collection reference
             model.$collection = this;
             // Push it to the models
