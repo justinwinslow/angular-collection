@@ -293,6 +293,10 @@ angular.module('ngCollection', [])
       };
 
       this.find = this.findWhere = function(attrs) {
+        if (_.isFunction(attrs)) {
+          return _.find(this.models, attrs);
+        }
+
         return _.find(this.models, function(model){
           for (var key in attrs) {
             if (attrs[key] !== model.attributes[key]) return false;
