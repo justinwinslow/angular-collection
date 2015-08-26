@@ -102,8 +102,7 @@ angular.module('ngCollection', [])
         this.$promise = get;
 
         get.then(function(response){
-          // Update model data
-          _.extend(that.attributes, response.data);
+          that.update(response.data);
         });
 
         get.finally(function(){
@@ -122,8 +121,7 @@ angular.module('ngCollection', [])
         this.$promise = save;
 
         save.then(function(response){
-          var model = response.data;
-          _.extend(that.attributes, model);
+          that.update(response.data);
         });
 
         save.finally(function(){
@@ -131,6 +129,12 @@ angular.module('ngCollection', [])
         });
 
         return this;
+      };
+
+      // NOTE - it's possible we'll want to save the original attributes object
+      // but I can't think of good reason at the moment and this works fine
+      this.update = function(attributes) {
+        this.attributes = attributes;
       };
 
       this.remove = this.del = function(){
@@ -155,7 +159,7 @@ angular.module('ngCollection', [])
         this.$promise = remove;
 
         remove.finally(function(){
-          that.resolved = true;
+          that.$resolved = true;
         });
 
         return this;
@@ -193,11 +197,32 @@ angular.module('ngCollection', [])
         this.length = this.models.length;
       };
 
+      // determines how old this data is since it returned from the server
+      this.getAge = function() {
+        return this.$resolved && this.resolvedAt ? new Date() - this.resolvedAt : -1;
+      };
+
+      // sets the resolvedAt time to determine the age of the data
+      var setAge = function(promise) {
+        var that = this;
+
+        this.requestedAt = +new Date();
+
+        promise.then(function () {
+          that.resolvedAt = +new Date();
+        });
+
+        return this;
+      };
+
       // Expose method for querying collection of models
       this.query = function(params){
         params = $.extend({}, defaultParams, params);
         var that = this;
         var query = $http.get(this.url, {params: params});
+
+        // Update data age info
+        setAge.call(this, query);
 
         // Update exposed promise and resolution indication
         this.$resolved = false;
@@ -206,7 +231,7 @@ angular.module('ngCollection', [])
         // Update models
         query.then(function(response){
           // Clear out models
-          that.models = [];
+          that.models.length = 0;
           that.length = 0;
 
           var models = response.data;
@@ -218,6 +243,57 @@ angular.module('ngCollection', [])
         });
 
         query.finally(function(){
+          that.$resolved = true;
+        });
+
+        return this;
+      };
+
+      this.sync = function(options) {
+        options = options || {};
+
+        // If the consumer set a minimum age, let's just return
+        // if the data isn't old enough
+        if (options.minAge && options.minAge > this.getAge()) {
+          return this;
+        }
+
+        var that = this;
+        var sync = $http.get(this.url, {params: defaultParams});
+
+        // Update data age info
+        setAge.call(this, sync);
+
+        // Update exposed promise and resolution indication
+        this.$resolved = false;
+        this.$promise = sync;
+
+        // Update models
+        sync.then(function(response){
+          var ids = [];
+
+          _.each(response.data, function(attributes){
+            var id = attributes.id;
+            var model = that.find({id: id});
+
+            if (id) ids.push(id);
+
+            if (model) {
+              model.update(attributes);
+            } else {
+              that.add(attributes);
+            }
+          });
+
+          // Remove any models that aren't present in the lastest data
+          that.each(function(model){
+            if (ids.indexOf(model.attributes.id) < 0) {
+              that.remove(model);
+            }
+          });
+        });
+
+        sync.finally(function(){
           that.$resolved = true;
         });
 
