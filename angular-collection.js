@@ -134,7 +134,17 @@ angular.module('ngCollection', [])
       // NOTE - it's possible we'll want to save the original attributes object
       // but I can't think of good reason at the moment and this works fine
       this.update = function(attributes) {
-        this.attributes = attributes;
+        var keys = _.keys(attributes);
+
+        // Remove any keys not present in the new data
+        for (var key in this.attributes) {
+          if (keys.indexOf(key) < 0) {
+            delete this.attributes[key];
+          }
+        }
+
+        // Merge the new data into the model
+        _.extend(this.attributes, attributes);
       };
 
       this.remove = this.del = function(){
