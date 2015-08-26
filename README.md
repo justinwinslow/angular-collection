@@ -49,6 +49,7 @@ angular.module('someModule', ['ngCollection'])
 #### Collection
 
 * `collection.query({params})` - Requests collection data (`GET`). Check out https://docs.angularjs.org/api/ng/service/$http for available parameters.
+* `collection.sync()` - Refreshes data. This is the prefered method for updating persisted models.
 * `collection.add({model})` - Adds model to collection but does not save it (can be object or instantiated `$model`).
 * `collection.remove({model})` - Removes model from the collection but does not issue `DEL` (must be intantiated `$model`).
 * `collection.save()` - Calls model.save() for each model in the collection.
