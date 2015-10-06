@@ -7,6 +7,8 @@ var push = array.push;
 var slice = array.slice;
 var splice = array.splice;
 
+var Model, Collection;
+
 angular.module('ngCollection', [])
   .directive('ngCollectionRepeat', ['$parse', '$animate', function($parse, $animate) {
     return {
@@ -74,7 +76,7 @@ angular.module('ngCollection', [])
     };
   }])
   .factory('$model', ['$http', '$q', function($http, $q){
-    var Model = function(url, model){
+    Model = function(url, model){
       this.url = url || '/';
 
       // Instantiate resource
@@ -183,7 +185,7 @@ angular.module('ngCollection', [])
   }])
   .factory('$collection', ['$http', '$q', '$model', function($http, $q, $model){
     // Collection constructor
-    var Collection = function(url, defaultParams, collection){
+    Collection = function(url, defaultParams, collection){
       this.url = url || '/';
 
       defaultParams = defaultParams || {};
@@ -311,7 +313,7 @@ angular.module('ngCollection', [])
       };
 
       this.push = this.add = function(model){
-        if (model && model.attributes) {
+        if (model instanceof Model) {
           // Add the model if it doesn't exist
           if (this.models.indexOf(model) < 0) {
             // Add collection reference
