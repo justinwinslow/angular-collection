@@ -298,7 +298,7 @@ angular.module('ngCollection', [])
           });
 
           // Remove any models that aren't present in the lastest data
-          that.each(function(model){
+          _.each(_.clone(that.models), function(model){
             try {
               if (ids.indexOf(model.attributes.id) < 0) {
                 that.remove(model);
