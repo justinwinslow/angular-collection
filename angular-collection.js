@@ -417,6 +417,14 @@ angular.module('ngCollection', [])
         return this.models[index];
       };
 
+      this.toJSON = function(){
+        var models = [];
+        this.each(function(model){
+          models.push(model.toJSON());
+        });
+        return models;
+      };
+
       // If a collection has been supplied, let's use that
       if (collection && collection.length) {
         // Loop through models
