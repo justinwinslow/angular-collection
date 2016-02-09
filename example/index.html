@@ -1,6 +1,5 @@
 
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular.js"></script>
-<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.js"></script>
 <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
 <script type="text/javascript" src="../angular-collection.js"></script>
 
@@ -35,13 +34,17 @@ function($scope, $collection, $model) {
 
   // Change a property
   var model = $scope.collection.find({id: 0});
-  model.set({'name': 'Some Other Name'});
-
-  $scope.collection.sortBy('name');
+  model.attributes.name = 'Some Other Name';
 
   $scope.log = function(model){
     console.log(model);
   };
+
+  var filteredResults = $scope.collection.filter(function(model){
+    return model.attributes.name == 'Number Two';
+  });
+
+  console.log(filteredResults);
 }]);
 </script>
 
