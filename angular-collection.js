@@ -176,6 +176,10 @@ angular.module('ngCollection', [])
 
         return this;
       };
+
+      this.toJSON = function(){
+        return this.attributes;
+      };
     };
 
     // Return the constructor
@@ -421,12 +425,10 @@ angular.module('ngCollection', [])
           this.push(model);
         }, this);
       }
-
-      return this;
     };
 
     // Stolen straight from Backbone
-    var methods = ['forEach', 'each', 'first', 'last', 'indexOf', 'filter'];
+    var methods = ['forEach', 'each', 'first', 'last', 'indexOf', 'map', 'filter'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
