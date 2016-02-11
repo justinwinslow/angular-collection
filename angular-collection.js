@@ -436,7 +436,7 @@ angular.module('ngCollection', [])
     };
 
     // Stolen straight from Backbone
-    var methods = ['forEach', 'each', 'first', 'last', 'indexOf', 'map', 'filter'];
+    var methods = ['each', 'filter', 'first', 'forEach', 'indexOf', 'last', 'map', 'some'];
 
     _.each(methods, function(method) {
       Collection.prototype[method] = function() {
