@@ -153,11 +153,6 @@ angular.module('ngCollection', [])
         var remove;
         var that = this;
 
-        // Remove model from collection if it's in one
-        if (this.$collection) {
-          this.$collection.remove(this);
-        }
-
         if (this.attributes.id) {
           remove = $http.delete(url + '/' + this.attributes.id);
         } else {
@@ -169,6 +164,13 @@ angular.module('ngCollection', [])
         // Update exposed promise and resolution indication
         this.$resolved = false;
         this.$promise = remove;
+
+        remove.then(function(){
+          // Remove model from collection if it's in one
+          if (that.$collection) {
+            that.$collection.remove(that);
+          }
+        });
 
         remove.finally(function(){
           that.$resolved = true;
