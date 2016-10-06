@@ -95,7 +95,7 @@ angular.module('ngCollection', [])
       this.$promise = defer.promise;
 
       this.get = function(id){
-        id = id || this.attributes.id;
+        id = id || this.attributes.id || '';
         var get = $http.get(this.url + '/' + id);
         var that = this;
 
