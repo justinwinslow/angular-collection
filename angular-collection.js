@@ -79,6 +79,16 @@ angular.module('ngCollection', [])
     Model = function(url, model){
       this.url = url || '/';
 
+      var that = this;
+
+      // This allows a consumer to query a model without an id
+      // or, in some cases, specify an id to query like if a model is
+      // being instantiated without a collection
+      var generateURL = function(id) {
+        id = id || that.attributes.id || '';
+        return that.url + (id ? '/' + id : '');
+      };
+
       // Instantiate resource
       var defaultParams = (model && model.id) ? {id: model.id} : {};
 
@@ -95,8 +105,7 @@ angular.module('ngCollection', [])
       this.$promise = defer.promise;
 
       this.get = function(id){
-        id = id || this.attributes.id || '';
-        var get = $http.get(this.url + '/' + id);
+        var get = $http.get(generateURL(id));
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -115,7 +124,7 @@ angular.module('ngCollection', [])
       };
 
       this.save = function(){
-        var save = (this.attributes.id) ? $http.put(this.url + '/' + this.attributes.id, this.attributes) : $http.post(this.url, this.attributes);
+        var save = (this.attributes.id) ? $http.put(generateURL(), this.attributes) : $http.post(generateURL(), this.attributes);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -154,7 +163,7 @@ angular.module('ngCollection', [])
         var that = this;
 
         if (this.attributes.id) {
-          remove = $http.delete(url + '/' + this.attributes.id);
+          remove = $http.delete(generateURL());
         } else {
           var defer = $q.defer();
           remove = defer.promise;
