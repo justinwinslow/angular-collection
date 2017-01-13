@@ -334,6 +334,13 @@ angular.module('ngCollection', [])
         return this;
       };
 
+      this.create = function(attributes, config) {
+        var model = $model(this.url, attributes, _.extend({}, collectionConfig, config));
+        // Add this collection reference to it
+        model.$collection = this;
+        return model;
+      };
+
       this.push = this.add = function(model){
         if (model instanceof Model) {
           // Add the model if it doesn't exist
@@ -345,9 +352,7 @@ angular.module('ngCollection', [])
           }
         } else if (model) {
           // Instantiate new model
-          model = $model(this.url, model, collectionConfig);
-          // Add this collection reference to it
-          model.$collection = this;
+          model = this.create(model);
           // Push it to the models
           this.models.push(model);
         }
