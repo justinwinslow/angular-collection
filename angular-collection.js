@@ -197,8 +197,8 @@ angular.module('ngCollection', [])
     };
 
     // Return the constructor
-    return function(url, model){
-      return new Model(url, model);
+    return function(url, model, config){
+      return new Model(url, model, config);
     };
   }])
   .factory('$collection', ['$http', '$q', '$model', function($http, $q, $model){
