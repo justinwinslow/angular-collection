@@ -76,7 +76,7 @@ angular.module('ngCollection', [])
     };
   }])
   .factory('$model', ['$http', '$q', function($http, $q){
-    Model = function(url, model){
+    Model = function(url, model, modelConfig){
       this.url = url || '/';
 
       var that = this;
@@ -104,8 +104,9 @@ angular.module('ngCollection', [])
 
       this.$promise = defer.promise;
 
-      this.get = function(id){
-        var get = $http.get(generateURL(id));
+      this.get = function(id, config){
+        config = _.extend({}, modelConfig, config);
+        var get = $http.get(generateURL(id), config);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -123,8 +124,9 @@ angular.module('ngCollection', [])
         return this;
       };
 
-      this.save = function(){
-        var save = (this.attributes.id) ? $http.put(generateURL(), this.attributes) : $http.post(generateURL(), this.attributes);
+      this.save = function(config){
+        config = _.extend({}, modelConfig, config);
+        var save = (this.attributes.id) ? $http.put(generateURL(), this.attributes, config) : $http.post(generateURL(), this.attributes, config);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -158,12 +160,13 @@ angular.module('ngCollection', [])
         _.extend(this.attributes, attributes);
       };
 
-      this.remove = this.del = function(){
+      this.remove = this.del = function(config){
+        config = _.extend({}, modelConfig, config);
         var remove;
         var that = this;
 
         if (this.attributes.id) {
-          remove = $http.delete(generateURL());
+          remove = $http.delete(generateURL(), config);
         } else {
           var defer = $q.defer();
           remove = defer.promise;
@@ -200,7 +203,7 @@ angular.module('ngCollection', [])
   }])
   .factory('$collection', ['$http', '$q', '$model', function($http, $q, $model){
     // Collection constructor
-    Collection = function(url, defaultParams, collection){
+    Collection = function(url, defaultParams, collection, collectionConfig){
       this.url = url || '/';
 
       defaultParams = defaultParams || {};
@@ -246,7 +249,7 @@ angular.module('ngCollection', [])
       this.query = function(params){
         params = $.extend({}, defaultParams, params);
         var that = this;
-        var query = $http.get(this.url, {params: params});
+        var query = $http.get(this.url, _.extend({}, collectionConfig, {params: params}));
 
         // Update data age info
         setAge.call(this, query);
@@ -286,7 +289,7 @@ angular.module('ngCollection', [])
         }
 
         var that = this;
-        var sync = $http.get(this.url, {params: defaultParams});
+        var sync = $http.get(this.url, _.extend({}, collectionConfig, {params: defaultParams}));
 
         // Update data age info
         setAge.call(this, sync);
@@ -342,7 +345,7 @@ angular.module('ngCollection', [])
           }
         } else if (model) {
           // Instantiate new model
-          model = $model(this.url, model);
+          model = $model(this.url, model, collectionConfig);
           // Add this collection reference to it
           model.$collection = this;
           // Push it to the models
@@ -364,7 +367,8 @@ angular.module('ngCollection', [])
       };
 
       // Save all models
-      this.save = function(){
+      this.save = function(config){
+        config = _.extend({}, collectionConfig, config);
         var that = this;
         var defer = $q.defer();
         var counter = 0;
@@ -376,7 +380,7 @@ angular.module('ngCollection', [])
         if (this.length) {
           // Save each model individually
           this.each(function(model){
-            model.save().then(function(){
+            model.save(config).then(function(){
               // Increment counter
               counter++;
 
@@ -461,8 +465,8 @@ angular.module('ngCollection', [])
     });
 
     // Return the constructor
-    return function(url, defaultParams, collection){
-      return new Collection(url, defaultParams, collection);
+    return function(url, defaultParams, collection, config){
+      return new Collection(url, defaultParams, collection, config);
     };
   }]);
 })(window.angular, window._);
