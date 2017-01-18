@@ -472,6 +472,8 @@ angular.module('ngCollection', [])
     return function(url, collection, options){
       var defaultParams;
 
+      // Add backwards compatibility for 
+      // previous arguments: (url, defaultParams, collection)
       if (_.isPlainObject(collection)) {
         defaultParams = collection;
         collection = options;
