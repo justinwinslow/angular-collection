@@ -76,9 +76,10 @@ angular.module('ngCollection', [])
     };
   }])
   .factory('$model', ['$http', '$q', function($http, $q){
-    Model = function(url, model){
+    Model = function(url, model, options){
       this.url = url || '/';
 
+      options = options || {};
       var that = this;
 
       // This allows a consumer to query a model without an id
@@ -88,9 +89,6 @@ angular.module('ngCollection', [])
         id = id || that.attributes.id || '';
         return that.url + (id ? '/' + id : '');
       };
-
-      // Instantiate resource
-      var defaultParams = (model && model.id) ? {id: model.id} : {};
 
       // Store the model
       this.attributes = model || {};
@@ -104,8 +102,9 @@ angular.module('ngCollection', [])
 
       this.$promise = defer.promise;
 
-      this.get = function(id){
-        var get = $http.get(generateURL(id));
+      this.get = function(id, config){
+        config = _.merge({}, options.httpConfig, _.get(config, 'httpConfig'));
+        var get = $http.get(generateURL(id), config);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -123,8 +122,9 @@ angular.module('ngCollection', [])
         return this;
       };
 
-      this.save = function(){
-        var save = (this.attributes.id) ? $http.put(generateURL(), this.attributes) : $http.post(generateURL(), this.attributes);
+      this.save = function(config){
+        config = _.merge({}, options.httpConfig, _.get(config, 'httpConfig'));
+        var save = (this.attributes.id) ? $http.put(generateURL(), this.attributes, config) : $http.post(generateURL(), this.attributes, config);
         var that = this;
 
         // Update exposed promise and resolution indication
@@ -158,12 +158,13 @@ angular.module('ngCollection', [])
         _.extend(this.attributes, attributes);
       };
 
-      this.remove = this.del = function(){
+      this.remove = this.del = function(config){
+        config = _.merge({}, options.httpConfig, _.get(config, 'httpConfig'));
         var remove;
         var that = this;
 
         if (this.attributes.id) {
-          remove = $http.delete(generateURL());
+          remove = $http.delete(generateURL(), config);
         } else {
           var defer = $q.defer();
           remove = defer.promise;
@@ -194,16 +195,17 @@ angular.module('ngCollection', [])
     };
 
     // Return the constructor
-    return function(url, model){
-      return new Model(url, model);
+    return function(url, model, options){
+      return new Model(url, model, options);
     };
   }])
   .factory('$collection', ['$http', '$q', '$model', function($http, $q, $model){
     // Collection constructor
-    Collection = function(url, defaultParams, collection){
+    Collection = function(url, collection, options){
       this.url = url || '/';
 
-      defaultParams = defaultParams || {};
+      options = options || {};
+      var defaultParams = options.params || {};
 
       // Store models for manipulation and display
       this.models = [];
@@ -243,10 +245,10 @@ angular.module('ngCollection', [])
       };
 
       // Expose method for querying collection of models
-      this.query = function(params){
+      this.query = function(params, config){
         params = $.extend({}, defaultParams, params);
         var that = this;
-        var query = $http.get(this.url, {params: params});
+        var query = $http.get(this.url, _.merge({}, options.httpConfig, _.get(config, 'httpConfig'), { params: params }));
 
         // Update data age info
         setAge.call(this, query);
@@ -276,17 +278,17 @@ angular.module('ngCollection', [])
         return this;
       };
 
-      this.sync = function(options) {
-        options = options || {};
+      this.sync = function(config) {
+        config = _.merge({}, options, config);
 
         // If the consumer set a minimum age, let's just return
         // if the data isn't old enough
-        if (options.minAge && options.minAge > this.getAge()) {
+        if (config.minAge && config.minAge > this.getAge()) {
           return this;
         }
 
         var that = this;
-        var sync = $http.get(this.url, {params: defaultParams});
+        var sync = $http.get(this.url, _.merge({}, config.httpConfig, { params: defaultParams }));
 
         // Update data age info
         setAge.call(this, sync);
@@ -331,6 +333,13 @@ angular.module('ngCollection', [])
         return this;
       };
 
+      this.create = function(attributes, config) {
+        var model = $model(this.url, attributes, _.merge({}, options, config));
+        // Add this collection reference to it
+        model.$collection = this;
+        return model;
+      };
+
       this.push = this.add = function(model){
         if (model instanceof Model) {
           // Add the model if it doesn't exist
@@ -342,9 +351,7 @@ angular.module('ngCollection', [])
           }
         } else if (model) {
           // Instantiate new model
-          model = $model(this.url, model);
-          // Add this collection reference to it
-          model.$collection = this;
+          model = this.create(model);
           // Push it to the models
           this.models.push(model);
         }
@@ -364,7 +371,8 @@ angular.module('ngCollection', [])
       };
 
       // Save all models
-      this.save = function(){
+      this.save = function(config){
+        config = _.merge({}, options, config);
         var that = this;
         var defer = $q.defer();
         var counter = 0;
@@ -376,7 +384,7 @@ angular.module('ngCollection', [])
         if (this.length) {
           // Save each model individually
           this.each(function(model){
-            model.save().then(function(){
+            model.save(config).then(function(){
               // Increment counter
               counter++;
 
@@ -461,8 +469,19 @@ angular.module('ngCollection', [])
     });
 
     // Return the constructor
-    return function(url, defaultParams, collection){
-      return new Collection(url, defaultParams, collection);
+    return function(url, collection, options){
+      var defaultParams;
+
+      // Add backwards compatibility for 
+      // previous arguments: (url, defaultParams, collection)
+      if (_.isPlainObject(collection)) {
+        defaultParams = collection;
+        collection = options;
+        options = arguments[3] || {};
+        options.params = defaultParams;
+      }
+
+      return new Collection(url, collection, options);
     };
   }]);
 })(window.angular, window._);
