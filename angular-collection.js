@@ -156,6 +156,8 @@ angular.module('ngCollection', [])
 
         // Merge the new data into the model
         _.extend(this.attributes, attributes);
+        
+        return this;
       };
 
       this.remove = this.del = function(config){
